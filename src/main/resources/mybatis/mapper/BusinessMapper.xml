@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.duobao.mapper.business.BusinessMapper" >
+  <resultMap id="BaseResultMap" type="com.duobao.entity.Business" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="orgid" property="orgid" jdbcType="VARCHAR" />
+    <result column="call_count" property="callCount" jdbcType="INTEGER" />
+    <result column="success_count" property="successCount" jdbcType="INTEGER" />
+    <result column="pull_count" property="pullCount" jdbcType="INTEGER" />
+    <result column="zmf_count" property="zmfCount" jdbcType="INTEGER" />
+    <result column="hygz_count" property="hygzCount" jdbcType="INTEGER" />
+    <result column="remain_amount" property="remainAmount" jdbcType="DECIMAL" />
+    <result column="total_amount" property="totalAmount" jdbcType="DECIMAL" />
+    <result column="zmf_price" property="zmfPrice" jdbcType="DECIMAL" />
+    <result column="hygz_price" property="hygzPrice" jdbcType="DECIMAL" />
+    <result column="vaild" property="vaild" jdbcType="INTEGER" />
+    <result column="return_url" property="returnUrl" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="db_update_time" property="dbUpdateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, orgid, call_count, success_count, pull_count, zmf_count, hygz_count, remain_amount, 
+    total_amount, zmf_price, hygz_price, vaild,return_url, create_time, db_update_time
+  </sql>
+
+  <insert id="insert" parameterType="com.duobao.entity.Business" >
+    insert into business (orgid, call_count,
+      success_count, pull_count, zmf_count, 
+      hygz_count, remain_amount, total_amount, 
+      zmf_price, hygz_price, vaild,return_url)
+    values (#{orgid,jdbcType=VARCHAR}, #{callCount,jdbcType=INTEGER},
+      #{successCount,jdbcType=INTEGER}, #{pullCount,jdbcType=INTEGER}, #{zmfCount,jdbcType=INTEGER}, 
+      #{hygzCount,jdbcType=INTEGER}, #{remainAmount,jdbcType=DECIMAL}, #{totalAmount,jdbcType=DECIMAL}, 
+      #{zmfPrice,jdbcType=DECIMAL}, #{hygzPrice,jdbcType=DECIMAL}, #{vaild,jdbcType=INTEGER},#{returnUrl,jdbcType=VARCHAR})
+  </insert>
+
+  <update id="updateBusinessByOrgId" parameterType="com.duobao.entity.Business" >
+    update business
+    <set >
+      <if test="callCount != null" >
+        call_count = #{callCount,jdbcType=INTEGER},
+      </if>
+      <if test="successCount != null" >
+        success_count = #{successCount,jdbcType=INTEGER},
+      </if>
+      <if test="pullCount != null" >
+        pull_count = #{pullCount,jdbcType=INTEGER},
+      </if>
+      <if test="zmfCount != null" >
+        zmf_count = #{zmfCount,jdbcType=INTEGER},
+      </if>
+      <if test="hygzCount != null" >
+        hygz_count = #{hygzCount,jdbcType=INTEGER},
+      </if>
+      <if test="remainAmount != null" >
+        remain_amount = #{remainAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="totalAmount != null" >
+        total_amount = #{totalAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="zmfPrice != null" >
+        zmf_price = #{zmfPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="hygzPrice != null" >
+        hygz_price = #{hygzPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="vaild != null" >
+        vaild = #{vaild,jdbcType=INTEGER},
+      </if>
+      <if test="returnUrl != null" >
+        return_url = #{returnUrl,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where
+    orgid = #{orgid,jdbcType=VARCHAR}
+    and id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectByOrgId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from business
+    where orgid = #{orgid,jdbcType=VARCHAR}
+    order by create_time desc limit 1
+  </select>
+  <select id="selectLastSecondRemainAmount" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from business
+    where orgid = #{orgid,jdbcType=VARCHAR}
+    order by create_time desc limit 1,1
+  </select>
+
+  <select id="getAllBusiness" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from business
+  </select>
+</mapper>

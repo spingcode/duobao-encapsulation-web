@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.duobao.mapper.supplier.SupplierMapper" >
+  <resultMap id="BaseResultMap" type="com.duobao.entity.Supplier" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="orgid" property="orgid" jdbcType="VARCHAR" />
+    <result column="rc4_key" property="rc4Key" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, orgid, rc4_key
+  </sql>
+  <select id="selecAllsupplier" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from supplier
+  </select>
+
+  <insert id="insertSupplier" parameterType="com.duobao.entity.Supplier" >
+    insert into supplier (orgid, rc4_key
+      )
+    values (#{orgid,jdbcType=VARCHAR}, #{rc4Key,jdbcType=VARCHAR}
+      )
+  </insert>
+</mapper>

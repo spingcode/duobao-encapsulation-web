@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.duobao.mapper.business.BusinessUserRelationMapper" >
+  <resultMap id="BaseResultMap" type="com.duobao.entity.BusinessUserRelation" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="orgid" property="orgid" jdbcType="VARCHAR" />
+    <result column="card" property="card" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="db_update_time" property="dbUpdateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, orgid, card, create_time, db_update_time
+  </sql>
+  <select id="selectOrgIdByCard" resultType="java.lang.String" parameterType="java.lang.String">
+    select 
+    orgid
+    from business_user_relation
+    where
+    #{card,jdbcType=VARCHAR}
+    order by create_time desc limit 1
+  </select>
+  <insert id="insert" parameterType="com.duobao.entity.BusinessUserRelation" >
+    insert into business_user_relation (orgid, card)
+    values (#{orgid,jdbcType=VARCHAR}, #{card,jdbcType=VARCHAR})
+  </insert>
+</mapper>
