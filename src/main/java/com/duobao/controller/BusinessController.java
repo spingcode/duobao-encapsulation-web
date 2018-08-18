@@ -71,6 +71,7 @@ public class BusinessController {
             /*如果最近的一条记录是今天的，就更新*/
             BusinessUserRelation relation = businessService.getBusinessUserRelationByOrgIdCard(userInfo.getCard(),business.getOrgid());
             if (relation != null&&DateUtil.compare(relation.getCreateTime().getTime(), DateUtil.getCurrent0Time()) > 0) {
+                relation.setNum(0);
                 businessService.updateBusinessUserRelation(relation);
             } else {
                 BusinessUserRelation businessUserRelation = new BusinessUserRelation();

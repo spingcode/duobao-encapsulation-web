@@ -39,7 +39,7 @@ public interface BusinessService {
     public boolean updateBusinessReturnUrl(Integer id,String orgId, String returnUrl);
 
 
-    List<Business> getAllBusiness();
+
 
     Business getBusinessByOrgId(String orgId);
 
@@ -52,4 +52,12 @@ public interface BusinessService {
 
     BusinessUserRelation getBusinessUserRelationByOrgIdCard(String card,String orgid);
 
+
+    List<Business> getAllBusiness();
+
+    Business getBusinessById(int id);
+
+    boolean updateBusiness(Business business);
+
+    List<Business> getAllBusinessByOrgId(String orgId);
 }

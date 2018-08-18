@@ -91,9 +91,72 @@
     order by create_time desc limit 1,1
   </select>
 
+  <sql id="Base_Column_List1" >
+    id, orgid, call_count, success_count, pull_count, zmf_count, hygz_count, remain_amount,
+    total_amount, zmf_price, hygz_price, vaild,return_url, create_time
+  </sql>
   <select id="getAllBusiness" resultMap="BaseResultMap">
+    select MAX(db_update_time) as db_update_time,<include refid="Base_Column_List1"/>
+    from business
+	GROUP BY orgid
+    ORDER BY db_update_time desc
+  </select>
+
+  <select id="getBusinessById" resultMap="BaseResultMap" parameterType="java.lang.Integer">
     select
     <include refid="Base_Column_List" />
     from business
+    WHERE
+    id=#{id,jdbcType=INTEGER}
+  </select>
+
+
+  <update id="updateBusinessById" parameterType="com.duobao.entity.Business" >
+    update business
+    <set >
+      <if test="callCount != null" >
+        call_count = #{callCount,jdbcType=INTEGER},
+      </if>
+      <if test="successCount != null" >
+        success_count = #{successCount,jdbcType=INTEGER},
+      </if>
+      <if test="pullCount != null" >
+        pull_count = #{pullCount,jdbcType=INTEGER},
+      </if>
+      <if test="zmfCount != null" >
+        zmf_count = #{zmfCount,jdbcType=INTEGER},
+      </if>
+      <if test="hygzCount != null" >
+        hygz_count = #{hygzCount,jdbcType=INTEGER},
+      </if>
+      <if test="remainAmount != null" >
+        remain_amount = #{remainAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="totalAmount != null" >
+        total_amount = #{totalAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="zmfPrice != null" >
+        zmf_price = #{zmfPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="hygzPrice != null" >
+        hygz_price = #{hygzPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="vaild != null" >
+        vaild = #{vaild,jdbcType=INTEGER},
+      </if>
+      <if test="returnUrl != null" >
+        return_url = #{returnUrl,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <select id="getAllBusinessByOrgId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from business
+    where orgid = #{orgid,jdbcType=VARCHAR}
+    order by create_time
   </select>
 </mapper>

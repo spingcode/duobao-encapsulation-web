@@ -40,7 +40,7 @@
 
   <insert id="update" parameterType="com.duobao.entity.BusinessUserRelation" >
     UPDATE business_user_relation
-    SET num=0
+    SET num= #{num,jdbcType=INTEGER}
     WHERE
     card = #{card,jdbcType=VARCHAR}
     and

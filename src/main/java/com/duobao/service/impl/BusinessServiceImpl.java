@@ -188,10 +188,7 @@ public class BusinessServiceImpl implements BusinessService {
         return businessMapper.updateBusinessByOrgId(business)>0;
     }
 
-    @Override
-    public List<Business> getAllBusiness() {
-        return businessMapper.getAllBusiness();
-    }
+
 
     @Override
     public Business getBusinessByOrgId(String orgId) {
@@ -241,5 +238,28 @@ public class BusinessServiceImpl implements BusinessService {
         businessUserRelation.setOrgid(orgid);
         businessUserRelation.setCard(card);
         return businessUserRelationMapper.getBusinessUserRelationByOrgIdCard(businessUserRelation);
+    }
+
+
+
+    @Override
+    public List<Business> getAllBusiness() {
+        return businessMapper.getAllBusiness();
+    }
+
+    @Override
+    public Business getBusinessById(int id) {
+        return businessMapper.getBusinessById(id);
+    }
+
+    @Override
+    public boolean updateBusiness(Business business) {
+        return businessMapper.updateBusinessById(business)>0;
+    }
+
+
+    @Override
+    public List<Business> getAllBusinessByOrgId(String orgId) {
+        return businessMapper.getAllBusinessByOrgId(orgId);
     }
 }

@@ -18,4 +18,11 @@ public interface BusinessMapper {
 
     List<Business> getAllBusiness();
 
+    Business getBusinessById(int id);
+
+    int updateBusinessById(Business business);
+
+    List<Business> getAllBusinessByOrgId(String orgId);
+
+
 }
