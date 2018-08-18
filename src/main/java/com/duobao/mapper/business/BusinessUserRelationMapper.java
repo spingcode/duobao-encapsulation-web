@@ -8,6 +8,11 @@ public interface BusinessUserRelationMapper {
     int insert(BusinessUserRelation businessUserRelation);
 
 
-    String selectOrgIdByCard(String card);
+    BusinessUserRelation selectOrgIdByCard(String card);
+
+
+    BusinessUserRelation getBusinessUserRelationByOrgIdCard(BusinessUserRelation relation);
+
+    int update(BusinessUserRelation businessUserRelation);
 
 }

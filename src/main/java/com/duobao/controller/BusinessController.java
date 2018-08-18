@@ -69,10 +69,15 @@ public class BusinessController {
             Date date = business.getCreateTime();
             /*2.2、保存B端数据到数据库*/
             /*如果最近的一条记录是今天的，就更新*/
-            BusinessUserRelation businessUserRelation = new BusinessUserRelation();
-            businessUserRelation.setCard(userInfo.getCard());
-            businessUserRelation.setOrgid(business.getOrgid());
-            businessService.saveBusinessUserRelation(businessUserRelation);
+            BusinessUserRelation relation = businessService.getBusinessUserRelationByOrgIdCard(userInfo.getCard(),business.getOrgid());
+            if (relation != null&&DateUtil.compare(relation.getCreateTime().getTime(), DateUtil.getCurrent0Time()) > 0) {
+                businessService.updateBusinessUserRelation(relation);
+            } else {
+                BusinessUserRelation businessUserRelation = new BusinessUserRelation();
+                businessUserRelation.setCard(userInfo.getCard());
+                businessUserRelation.setOrgid(business.getOrgid());
+                businessService.saveBusinessUserRelation(businessUserRelation);
+            }
             if (DateUtil.compare(date.getTime(), DateUtil.getCurrent0Time()) > 0) {
                 business.setCallCount(business.getCallCount() + 1);
                 businessService.updateBusinessCallCount(business.getId(),business.getOrgid(), business.getCallCount());
@@ -112,8 +117,20 @@ public class BusinessController {
             }
             //2、保存数据到我们自己的表
             /*2.1 保存B端数据*/
-            String orgid = businessService.getOrgIdByCard(zmfResultModel.getData().getCard());
+            BusinessUserRelation relation = businessService.getOrgIdByCard(zmfResultModel.getData().getCard());
+            String orgid=relation.getOrgid();
             Business business = businessService.getBusinessByOrgId(orgid);
+            if (relation.getNum() == 1) {
+                zmfResultModel.setOrgid(orgid);
+                String result = DataHandlerUtil.decodeResult(zmfResultModel);
+                logger.info("供应商给我的芝麻分数据重新加密给B端，result={}",result);
+                String response = HttpUtils.sendGet(business.getReturnUrl(), result);
+                return response;
+            }
+            if (relation.getNum() == 0) {
+                relation.setNum(1);
+                businessService.updateBusinessUserRelation(relation);
+            }
             logger.info("zhiMaFenCallBackHL，得到B端的机构的调用数据，business={}",business);
             business.setSuccessCount(business.getSuccessCount() + 1);
             businessService.updateBusinessSucessCount(business.getId(),orgid, business.getSuccessCount());

@@ -5,22 +5,47 @@
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="orgid" property="orgid" jdbcType="VARCHAR" />
     <result column="card" property="card" jdbcType="VARCHAR" />
+    <result column="num" property="num" jdbcType="INTEGER"/>
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="db_update_time" property="dbUpdateTime" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, orgid, card, create_time, db_update_time
+    id, orgid, card, num,create_time, db_update_time
   </sql>
-  <select id="selectOrgIdByCard" resultType="java.lang.String" parameterType="java.lang.String">
+  <select id="selectOrgIdByCard" resultType="com.duobao.entity.BusinessUserRelation" parameterType="java.lang.String">
     select 
-    orgid
+    <include refid="Base_Column_List"/>
     from business_user_relation
     where
-    #{card,jdbcType=VARCHAR}
-    order by create_time desc limit 1
+    card = #{card,jdbcType=VARCHAR}
+    order by db_update_time desc limit 1
   </select>
+
+
+  <select id="getBusinessUserRelationByOrgIdCard" resultType="com.duobao.entity.BusinessUserRelation" parameterType="java.lang.String">
+    select
+    <include refid="Base_Column_List"/>
+    from business_user_relation
+    where
+    card = #{card,jdbcType=VARCHAR}
+    and
+    orgid= #{orgid,jdbcType=VARCHAR}
+    order by db_update_time desc limit 1
+  </select>
+
   <insert id="insert" parameterType="com.duobao.entity.BusinessUserRelation" >
-    insert into business_user_relation (orgid, card)
-    values (#{orgid,jdbcType=VARCHAR}, #{card,jdbcType=VARCHAR})
+    insert into business_user_relation (orgid, card,num)
+    values (#{orgid,jdbcType=VARCHAR},#{card,jdbcType=VARCHAR},0)
+  </insert>
+
+  <insert id="update" parameterType="com.duobao.entity.BusinessUserRelation" >
+    UPDATE business_user_relation
+    SET num=0
+    WHERE
+    card = #{card,jdbcType=VARCHAR}
+    and
+    orgid = #{orgid,jdbcType=VARCHAR}
+    and
+    id=#{id,jdbcType=INTEGER}
   </insert>
 </mapper>

@@ -46,6 +46,10 @@ public interface BusinessService {
     Business getLastSecondRemainAmount(String orgId);
 
     boolean saveBusinessUserRelation(BusinessUserRelation businessUserRelation);
-    String getOrgIdByCard(String card);
+    BusinessUserRelation getOrgIdByCard(String card);
+
+    boolean updateBusinessUserRelation(BusinessUserRelation businessUserRelation);
+
+    BusinessUserRelation getBusinessUserRelationByOrgIdCard(String card,String orgid);
 
 }

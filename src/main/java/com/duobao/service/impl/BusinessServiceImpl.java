@@ -219,11 +219,27 @@ public class BusinessServiceImpl implements BusinessService {
     }
 
     @Override
-    public String getOrgIdByCard(String card) {
+    public BusinessUserRelation getOrgIdByCard(String card) {
         if (StringUtils.isBlank(card)) {
             return null;
         }
         return businessUserRelationMapper.selectOrgIdByCard(card);
     }
 
+    @Override
+    public boolean updateBusinessUserRelation(BusinessUserRelation businessUserRelation) {
+        return businessUserRelationMapper.update(businessUserRelation)>0;
+    }
+
+
+    @Override
+    public BusinessUserRelation getBusinessUserRelationByOrgIdCard(String card,String orgid) {
+        if (StringUtils.isBlank(card)||StringUtils.isBlank(orgid)) {
+            return null;
+        }
+        BusinessUserRelation businessUserRelation = new BusinessUserRelation();
+        businessUserRelation.setOrgid(orgid);
+        businessUserRelation.setCard(card);
+        return businessUserRelationMapper.getBusinessUserRelationByOrgIdCard(businessUserRelation);
+    }
 }

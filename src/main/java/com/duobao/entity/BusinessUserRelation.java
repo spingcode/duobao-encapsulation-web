@@ -10,11 +10,21 @@ public class BusinessUserRelation implements Serializable {
 
     private String card;
 
+    private Integer num;
+
     private Date createTime;
 
     private Date dbUpdateTime;
 
     private static final long serialVersionUID = 1L;
+
+    public Integer getNum() {
+        return num;
+    }
+
+    public void setNum(Integer num) {
+        this.num = num;
+    }
 
     public Integer getId() {
         return id;
