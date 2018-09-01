@@ -53,5 +53,19 @@ public class FreemarkerController {
         return "history";
     }
 
+    @RequestMapping("addNewBusiness")
+    public String addBusiness(Map<String,Object> map,Business business) {
+        if (business == null || StringUtils.isBlank(business.getOrgid())) {
+            return getAllBusiness(map);
+        }
+        businessService.insertBusiness(business);
+        return getAllBusiness(map);
+    }
+
+    @RequestMapping("newPage")
+    public String newPage() {
+        return "addBusinesses";
+    }
+
 
 }

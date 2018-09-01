@@ -30,7 +30,7 @@ public class Ts {
         return toHexString(asString(encry_RC4_byte(data, key)));
     }
 
-    private static String asString(byte[] buf) {
+    public static String asString(byte[] buf) {
         StringBuffer strbuf = new StringBuffer(buf.length);
         for (int i = 0; i < buf.length; i++) {
             strbuf.append((char) buf[i]);
@@ -60,7 +60,7 @@ public class Ts {
         return state;
     }
 
-    private static String toHexString(String s) {
+    public static String toHexString(String s) {
         String str = "";
         for (int i = 0; i < s.length(); i++) {
             int ch = (int) s.charAt(i);

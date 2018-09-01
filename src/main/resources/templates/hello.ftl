@@ -47,6 +47,9 @@
         </tr>
     </#list>
     </table>
+    <tr>
+        <td><a href="/freemarker/newPage">添加新的orgid</a></td>
+    </tr>
 
 
 </div>

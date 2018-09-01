@@ -2,16 +2,19 @@ package com.duobao.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.duobao.model.*;
+import com.duobao.model.UserInfo;
+import com.duobao.model.ZmfDecodeModel;
+import com.duobao.model.ZmfRequestModel;
+import com.duobao.model.ZmfResultModel;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 
-public class DataHandlerUtil {
+public class DataHandlerUtilForPHP {
 
-    private static Logger logger = LoggerFactory.getLogger(DataHandlerUtil.class);
+    private static Logger logger = LoggerFactory.getLogger(DataHandlerUtilForPHP.class);
     private static String RC4_KEY="UCJYLVVL";
     private static String orgId="duobao";
     private static String returnUrl="http://118.24.127.29/business/zhiMaFenCallBackHL?";
@@ -19,8 +22,9 @@ public class DataHandlerUtil {
     public static ZmfDecodeModel decode(String param) throws UnsupportedEncodingException {
         ZmfRequestModel zmfRequestModel = JSON.parseObject(param, ZmfRequestModel.class);
         String data = zmfRequestModel.getData();
-        String decodeString =Base64Utils.decode(data);
-        data = Ts.decry_RC4(decodeString, RC4_KEY);
+        byte[] byt = Base64.decodeBase64(data.getBytes());
+        String s = Ts.toHexString(Ts.asString(byt));
+        data = Ts.decry_RC4(s, RC4_KEY);
         UserInfo userInfo = JSON.parseObject(data, UserInfo.class);
         ZmfDecodeModel zmfDecodeModel = new ZmfDecodeModel();
         zmfDecodeModel.setOrgid(zmfRequestModel.getOrgid());

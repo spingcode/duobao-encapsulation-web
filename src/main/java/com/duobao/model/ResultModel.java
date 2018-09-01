@@ -39,4 +39,10 @@ public class ResultModel implements Serializable{
         resultModel.setMessage("数据格式错误");
         return JSON.toJSONString(resultModel);
     }
+    public static String wrapError(String message) {
+        ResultModel resultModel = new ResultModel();
+        resultModel.setStatus(0);
+        resultModel.setMessage(message);
+        return JSON.toJSONString(resultModel);
+    }
 }

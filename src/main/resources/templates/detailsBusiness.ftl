@@ -51,10 +51,10 @@
             <td>returnUrl :${msg.returnUrl}</td>
         </tr>
         <tr>
-            <td>创建时间 :${(msg.createTime?string("yyyy-MM-dd hh:mm:ss"))!}</td>
+            <td>创建时间 :${(msg.createTime?string("yyyy-MM-dd HH:mm:ss"))!}</td>
         </tr>
         <tr>
-            <td>更新时间 :${(msg.dbUpdateTime?string("yyyy-MM-dd hh:mm:ss"))!}</td>
+            <td>更新时间 :${(msg.dbUpdateTime?string("yyyy-MM-dd HH:mm:ss"))!}</td>
         </tr>
         <tr>
             <td><a href="/freemarker/getHistoryByOrgid?orgid=${msg.orgid}">该B端用户的历史纪录</a></td>

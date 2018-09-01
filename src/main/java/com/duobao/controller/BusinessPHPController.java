@@ -4,14 +4,14 @@ package com.duobao.controller;
 import com.duobao.entity.Business;
 import com.duobao.entity.BusinessUserRelation;
 import com.duobao.entity.User;
-import com.duobao.model.*;
+import com.duobao.model.ResultModel;
+import com.duobao.model.UserInfo;
+import com.duobao.model.ZmfDecodeModel;
+import com.duobao.model.ZmfResultModel;
 import com.duobao.service.BusinessService;
 import com.duobao.service.UserService;
 import com.duobao.util.*;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +20,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @RestController
-@RequestMapping(value = "/business")
-public class BusinessController {
-    Logger logger = LoggerFactory.getLogger(BusinessController.class);
+@RequestMapping(value = "/business/php/")
+public class BusinessPHPController {
+    Logger logger = LoggerFactory.getLogger(BusinessPHPController.class);
     @Autowired
     private BusinessService businessService;
     @Autowired
@@ -48,7 +42,7 @@ public class BusinessController {
             if (StringUtils.isBlank(param)) {
                 return ResultModel.wrapError("参数为空");
             }
-            ZmfDecodeModel zmfDecodeModel = DataHandlerUtil.decode(param);
+            ZmfDecodeModel zmfDecodeModel = DataHandlerUtilForPHP.decode(param);
             logger.info("getZmf，得到B端请求用户的解密数据，zmfDecodeModel={}",zmfDecodeModel);
             if (zmfDecodeModel == null || StringUtils.isBlank(zmfDecodeModel.getOrgid())) {
                 return ResultModel.wrapError();
@@ -92,7 +86,7 @@ public class BusinessController {
             }
             logger.info("getZmf，得到B端的机构将要保存到数据库的数据，business={}",business);
             /*3、把我的数据发送给供应商*/
-            String sendParam = DataHandlerUtil.encode(zmfDecodeModel);
+            String sendParam = DataHandlerUtilForPHP.encode(zmfDecodeModel);
             logger.info("得到我将要发送给供应商的加密数据，sendParam={}",sendParam);
             String result= HttpUtils.sendPost(sendParam,pushMessageUrl);
             logger.info("得到供应商返回给我的认证的URL，result={}",result);
@@ -112,7 +106,7 @@ public class BusinessController {
                 return ResultModel.wrapError();
             }
             //1、得到芝麻分数据
-            ZmfResultModel zmfResultModel = DataHandlerUtil.decodeZmf(param);
+            ZmfResultModel zmfResultModel = DataHandlerUtilForPHP.decodeZmf(param);
             logger.info("zhiMaFenCallBackHL，得到供应商调用我的returnUrl给我的解密之后的数据（对象）：zmfResultModel={}",zmfResultModel);
             if (zmfResultModel == null) {
                 return ResultModel.wrapError();
@@ -124,7 +118,7 @@ public class BusinessController {
             Business business = businessService.getBusinessByOrgId(orgid);
             if (relation.getNum() == 1) {
                 zmfResultModel.setOrgid(orgid);
-                String result = DataHandlerUtil.decodeResult(zmfResultModel);
+                String result = DataHandlerUtilForPHP.decodeResult(zmfResultModel);
                 logger.info("供应商给我的芝麻分数据重新加密给B端，result={}",result);
                 String response = HttpUtils.sendGet(business.getReturnUrl(), result);
                 return response;
@@ -162,7 +156,7 @@ public class BusinessController {
             userService.insertUser(user);
             logger.info("得到将要保存的用户数据，user={}",user);
             zmfResultModel.setOrgid(orgid);
-            String result = DataHandlerUtil.decodeResult(zmfResultModel);
+            String result = DataHandlerUtilForPHP.decodeResult(zmfResultModel);
             logger.info("供应商给我的芝麻分数据重新加密给B端，result={}",result);
             String response = HttpUtils.sendGet(business.getReturnUrl(), result);
             logger.info("调用B端returnUrl的返回值：response={}",response);
@@ -175,13 +169,12 @@ public class BusinessController {
 
     @RequestMapping(value = "/getHygz",method = RequestMethod.POST)
     public String getHygz(String param) {
-
         try {
             logger.info("getHygz,获取B端请求用户的加密数据：param={}",param);
             if (StringUtils.isBlank(param)) {
                 return ResultModel.wrapError();
             }
-            ZmfDecodeModel zmfDecodeModel = DataHandlerUtil.decode(param);
+            ZmfDecodeModel zmfDecodeModel = DataHandlerUtilForPHP.decode(param);
             logger.info("getHygz，得到B端请求用户的解密数据，zmfDecodeModel={}",zmfDecodeModel);
             if (zmfDecodeModel == null || StringUtils.isBlank(zmfDecodeModel.getOrgid())) {
                 return ResultModel.wrapError();
