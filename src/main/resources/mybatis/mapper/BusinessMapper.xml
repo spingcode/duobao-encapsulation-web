@@ -96,10 +96,9 @@
     total_amount, zmf_price, hygz_price, vaild,return_url, create_time
   </sql>
   <select id="getAllBusiness" resultMap="BaseResultMap">
-    select MAX(db_update_time) as db_update_time,<include refid="Base_Column_List1"/>
+    select <include refid="Base_Column_List1"/>
     from business
-	GROUP BY orgid
-    ORDER BY db_update_time desc
+    ORDER BY create_time desc
   </select>
 
   <select id="getBusinessById" resultMap="BaseResultMap" parameterType="java.lang.Integer">

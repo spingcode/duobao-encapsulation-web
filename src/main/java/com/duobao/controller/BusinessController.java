@@ -43,11 +43,11 @@ public class BusinessController {
     public String getZmf(String param) {
         //1、获取B端数据
         try {
-            param = param.replaceAll(" ","+");
-            logger.info("获取B端请求用户的加密数据：param={}",param);
             if (StringUtils.isBlank(param)) {
                 return ResultModel.wrapError("参数为空");
             }
+            param = param.replaceAll(" ","+");
+            logger.info("获取B端请求用户的加密数据：param={}",param);
             ZmfDecodeModel zmfDecodeModel = DataHandlerUtil.decode(param);
             logger.info("getZmf，得到B端请求用户的解密数据，zmfDecodeModel={}",zmfDecodeModel);
             if (zmfDecodeModel == null || StringUtils.isBlank(zmfDecodeModel.getOrgid())) {
@@ -106,11 +106,11 @@ public class BusinessController {
     @GetMapping(value = "/zhiMaFenCallBackHL")
     public String zhiMaFenCallBackHL(String param) {
         try {
-            param = param.replaceAll(" ","+");
-            logger.info("供应商开始回调我的returnUrl 参数为：param:{}",param);
             if (StringUtils.isBlank(param)) {
                 return ResultModel.wrapError();
             }
+            param = param.replaceAll(" ","+");
+            logger.info("供应商开始回调我的returnUrl 参数为：param:{}",param);
             //1、得到芝麻分数据
             ZmfResultModel zmfResultModel = DataHandlerUtil.decodeZmf(param);
             logger.info("zhiMaFenCallBackHL，得到供应商调用我的returnUrl给我的解密之后的数据（对象）：zmfResultModel={}",zmfResultModel);
@@ -175,12 +175,12 @@ public class BusinessController {
 
     @RequestMapping(value = "/getHygz",method = RequestMethod.POST)
     public String getHygz(String param) {
-
         try {
-            logger.info("getHygz,获取B端请求用户的加密数据：param={}",param);
             if (StringUtils.isBlank(param)) {
                 return ResultModel.wrapError();
             }
+            param = param.replaceAll(" ","+");
+            logger.info("getHygz,获取B端请求用户的加密数据：param={}",param);
             ZmfDecodeModel zmfDecodeModel = DataHandlerUtil.decode(param);
             logger.info("getHygz，得到B端请求用户的解密数据，zmfDecodeModel={}",zmfDecodeModel);
             if (zmfDecodeModel == null || StringUtils.isBlank(zmfDecodeModel.getOrgid())) {
@@ -193,7 +193,7 @@ public class BusinessController {
                 return ResultModel.wrapError();
             }
             Business business = businessService.getBusinessByOrgId(zmfDecodeModel.getOrgid());
-            logger.info("getZmf，得到B端的机构的调用数据，business={}",business);
+            logger.info("getHygz，得到B端的机构的调用数据，business={}",business);
             if (business == null || business.getVaild().equals(1) || business.getRemainAmount() <= 0) {
                 return ResultModel.wrapError();
             }
@@ -206,7 +206,7 @@ public class BusinessController {
             if (business_old == null) {
                 RemainAmountLast = business.getRemainAmount() - business.getHygzPrice() * business.getHygzCount();
             } else {
-                RemainAmountLast = business.getRemainAmount()-business.getHygzPrice()*(business.getHygzCount()-business_old.getHygzCount());
+                RemainAmountLast = business_old.getRemainAmount()-business.getHygzPrice()*(business.getHygzCount()-business_old.getHygzCount());
             }
             business.setRemainAmount(RemainAmountLast);
             businessService.updateBusinessRemainAmount(business.getId(),business.getOrgid(),business.getRemainAmount());

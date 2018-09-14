@@ -2,11 +2,14 @@ package com.duobao.controller;
 
 import com.duobao.entity.Business;
 import com.duobao.service.BusinessService;
+import com.duobao.util.DateUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +22,16 @@ public class FreemarkerController {
     @RequestMapping("getAllBusiness")
     public String getAllBusiness(Map<String,Object> map) {
         List<Business> allBusiness = businessService.getAllBusiness();
-        map.put("msg", allBusiness);
+        Map<String,Business> mapBusiness = new LinkedHashMap<>();
+        if (CollectionUtils.isNotEmpty(allBusiness)) {
+            for (Business business : allBusiness) {
+                Business business1 = mapBusiness.get(business.getOrgid());
+                if (business1 == null|| DateUtil.compare(business1.getCreateTime().getTime(),business.getCreateTime().getTime())<0) {
+                    mapBusiness.put(business.getOrgid(),business);
+                }
+            }
+        }
+        map.put("msg", mapBusiness.values());
         return "hello";
     }
 

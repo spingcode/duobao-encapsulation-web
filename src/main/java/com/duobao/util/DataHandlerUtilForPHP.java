@@ -17,7 +17,7 @@ public class DataHandlerUtilForPHP {
     private static Logger logger = LoggerFactory.getLogger(DataHandlerUtilForPHP.class);
     private static String RC4_KEY="UCJYLVVL";
     private static String orgId="duobao";
-    private static String returnUrl="http://118.24.127.29/business/zhiMaFenCallBackHL?";
+    private static String returnUrl="http://118.24.127.29/business/php/zhiMaFenCallBackHL?";
     /*请求芝麻分的对B端用户进行解密*/
     public static ZmfDecodeModel decode(String param) throws UnsupportedEncodingException {
         ZmfRequestModel zmfRequestModel = JSON.parseObject(param, ZmfRequestModel.class);
@@ -56,8 +56,8 @@ public class DataHandlerUtilForPHP {
         jsonSec.put("card", userInfo.getCard());
         jsonSec.put("phone", userInfo.getPhone());
         logger.info("encodeHygz,得到我将要发送给供应商未加密的数据：data={}",jsonSec.toJSONString());
-        byte[] bytes = Ts.encry_RC4_byte(jsonSec.toJSONString(), RC4_KEY);
-        String sign = Base64Utils.encodeBase64(bytes);
+        byte[] rc4 = Ts.encry_RC4_byte(jsonSec.toJSONString(), RC4_KEY);
+        String sign= Base64Utils.encodeBase64(rc4);
         json.put("data", sign);
         return json.toJSONString();
     }
@@ -74,8 +74,8 @@ public class DataHandlerUtilForPHP {
         jsonSec.put("card", zmfResultModel.getData().getCard());
         jsonSec.put("phone", zmfResultModel.getData().getPhone());
         jsonSec.put("zmf",zmfResultModel.getData().getZmf());
-        String s = Ts.encry_RC4_string(jsonSec.toJSONString(), RC4_KEY);
-        return Base64Utils.encodeBase64(s.getBytes());
+        byte[] rc4 = Ts.encry_RC4_byte(jsonSec.toJSONString(), RC4_KEY);
+        return Base64Utils.encodeBase64(rc4);
     }
 
 }
