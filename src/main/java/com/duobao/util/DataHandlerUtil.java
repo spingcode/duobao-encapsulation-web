@@ -36,7 +36,7 @@ public class DataHandlerUtil {
         jsonSec.put("name", userInfo.getName());
         jsonSec.put("card", userInfo.getCard());
         jsonSec.put("phone", userInfo.getPhone());
-        jsonSec.put("returnUrl", userInfo.getReturnUrl());
+        jsonSec.put("returnUrl", returnUrl);
         logger.info("得到我将要发送给供应商未加密的数据：data={}",jsonSec.toJSONString());
         byte[] bytes = Ts.encry_RC4_byte(jsonSec.toJSONString(), RC4_KEY);
         String sign = Base64Utils.encodeBase64(bytes);

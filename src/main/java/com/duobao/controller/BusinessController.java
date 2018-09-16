@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -104,7 +105,7 @@ public class BusinessController {
     }
 
     @GetMapping(value = "/zhiMaFenCallBackHL")
-    public String zhiMaFenCallBackHL(String param) {
+    public String zhiMaFenCallBackHL(String param,HttpServletResponse response) {
         try {
             if (StringUtils.isBlank(param)) {
                 return ResultModel.wrapError();
@@ -126,8 +127,11 @@ public class BusinessController {
                 zmfResultModel.setOrgid(orgid);
                 String result = DataHandlerUtil.decodeResult(zmfResultModel);
                 logger.info("供应商给我的芝麻分数据重新加密给B端，result={}",result);
-                String response = HttpUtils.sendGet(business.getReturnUrl(), result);
-                return response;
+                String returnUrl1=business.getReturnUrl();
+                returnUrl1=returnUrl1+"?param="+result;
+                logger.info("重定向到B端用户的URL:{}",returnUrl1);
+                response.sendRedirect(returnUrl1);
+                return null;
             }
             if (relation.getNum() == 0) {
                 relation.setNum(1);
@@ -164,9 +168,13 @@ public class BusinessController {
             zmfResultModel.setOrgid(orgid);
             String result = DataHandlerUtil.decodeResult(zmfResultModel);
             logger.info("供应商给我的芝麻分数据重新加密给B端，result={}",result);
-            String response = HttpUtils.sendGet(business.getReturnUrl(), result);
-            logger.info("调用B端returnUrl的返回值：response={}",response);
-            return response;
+            //String response = HttpUtils.sendGet(business.getReturnUrl(), result);
+            String returnUrl=business.getReturnUrl();
+            logger.info("重定向到B端用户的URL:{}",returnUrl);
+            returnUrl=returnUrl+"?param="+result;
+            logger.info("重定向到B端用户的URL:{}",returnUrl);
+            response.sendRedirect(returnUrl);
+            return null;
         } catch (Exception e) {
             logger.warn("returnUrl方法抛异常：",e);
             return ResultModel.wrapError();
