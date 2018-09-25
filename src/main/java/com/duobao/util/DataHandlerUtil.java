@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.duobao.model.*;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ public class DataHandlerUtil {
         return zmfDecodeModel;
     }
 
-    public static String encode(ZmfDecodeModel zmfDecodeModel) throws UnsupportedEncodingException {
+    public static String encode(ZmfDecodeModel zmfDecodeModel,String key) throws UnsupportedEncodingException {
         UserInfo userInfo = zmfDecodeModel.getUserInfo();
         JSONObject json = new JSONObject();
         json.put("orgid", orgId);
@@ -36,7 +37,11 @@ public class DataHandlerUtil {
         jsonSec.put("name", userInfo.getName());
         jsonSec.put("card", userInfo.getCard());
         jsonSec.put("phone", userInfo.getPhone());
-        jsonSec.put("returnUrl", returnUrl);
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(key)) {
+            jsonSec.put("returnUrl", returnUrl + key+"&");
+        } else {
+            jsonSec.put("returnUrl", returnUrl);
+        }
         logger.info("得到我将要发送给供应商未加密的数据：data={}",jsonSec.toJSONString());
         byte[] bytes = Ts.encry_RC4_byte(jsonSec.toJSONString(), RC4_KEY);
         String sign = Base64Utils.encodeBase64(bytes);

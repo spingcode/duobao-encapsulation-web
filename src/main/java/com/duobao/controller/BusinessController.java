@@ -1,17 +1,16 @@
 package com.duobao.controller;
 
 
+import com.duobao.Cache.LocalCacheUtils;
 import com.duobao.entity.Business;
 import com.duobao.entity.BusinessUserRelation;
 import com.duobao.entity.User;
 import com.duobao.model.*;
+import com.duobao.redis.RedisUtil;
 import com.duobao.service.BusinessService;
 import com.duobao.service.UserService;
 import com.duobao.util.*;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/business")
@@ -37,6 +31,12 @@ public class BusinessController {
     private BusinessService businessService;
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private LocalCacheUtils localCacheUtils;
+
+    @Autowired
+    private RedisUtil redisUtil;
     String pushMessageUrl = "http://www.hlqz.top//index.php?g=Interfaces&m=Zmf&a=zmf_url";
     String hygzUrl="http://www.hlqz.top//index.php?g=Interfaces&m=Hydt&a=zs_hydt";
     //
@@ -50,6 +50,30 @@ public class BusinessController {
             param = param.replaceAll(" ","+");
             logger.info("获取B端请求用户的加密数据：param={}",param);
             ZmfDecodeModel zmfDecodeModel = DataHandlerUtil.decode(param);
+            String url = zmfDecodeModel.getUserInfo().getReturnUrl();
+            String key = null;
+            try {
+                logger.info("localCacheUtils={}", localCacheUtils);
+                try {
+                    key = url.substring(url.indexOf("key="),url.indexOf("&"));
+                } catch (Exception e) {
+                    logger.info("获取key失败，key={}",key);
+                }
+                if (zmfDecodeModel.getOrgid().equals("shangrong200918")) {
+                    key= "key="+UUID.randomUUID().toString();
+                }
+                if (StringUtils.isBlank(key)||zmfDecodeModel.getOrgid().contains("random")) {
+                    key= "key="+UUID.randomUUID().toString();
+                }
+                if (StringUtils.isNotBlank(key)) {
+                    localCacheUtils.set(key,zmfDecodeModel.getUserInfo().getReturnUrl());
+                    redisUtil.set(key,zmfDecodeModel.getUserInfo().getReturnUrl());
+                    redisUtil.setKeyExpire(key,2);
+                    logger.info("key={},value={},redisValue={}",key,localCacheUtils.get(key),redisUtil.get(key));
+                }
+            } catch (Exception e) {
+
+            }
             logger.info("getZmf，得到B端请求用户的解密数据，zmfDecodeModel={}",zmfDecodeModel);
             if (zmfDecodeModel == null || StringUtils.isBlank(zmfDecodeModel.getOrgid())) {
                 return ResultModel.wrapError();
@@ -93,7 +117,7 @@ public class BusinessController {
             }
             logger.info("getZmf，得到B端的机构将要保存到数据库的数据，business={}",business);
             /*3、把我的数据发送给供应商*/
-            String sendParam = DataHandlerUtil.encode(zmfDecodeModel);
+            String sendParam = DataHandlerUtil.encode(zmfDecodeModel,key);
             logger.info("得到我将要发送给供应商的加密数据，sendParam={}",sendParam);
             String result= HttpUtils.sendPost(sendParam,pushMessageUrl);
             logger.info("得到供应商返回给我的认证的URL，result={}",result);
@@ -105,11 +129,12 @@ public class BusinessController {
     }
 
     @GetMapping(value = "/zhiMaFenCallBackHL")
-    public String zhiMaFenCallBackHL(String param,HttpServletResponse response) {
+    public String zhiMaFenCallBackHL(String param,String key,HttpServletResponse response) {
         try {
             if (StringUtils.isBlank(param)) {
                 return ResultModel.wrapError();
             }
+            logger.info("key{}",key);
             param = param.replaceAll(" ","+");
             logger.info("供应商开始回调我的returnUrl 参数为：param:{}",param);
             //1、得到芝麻分数据
@@ -128,7 +153,19 @@ public class BusinessController {
                 String result = DataHandlerUtil.decodeResult(zmfResultModel);
                 logger.info("供应商给我的芝麻分数据重新加密给B端，result={}",result);
                 String returnUrl1=business.getReturnUrl();
-                returnUrl1=returnUrl1+"?param="+result;
+                returnUrl1=returnUrl1+"param="+result;
+                if (StringUtils.isNotBlank(key)) {
+                    String returnUrlCache = localCacheUtils.get("key="+key);
+                    logger.info("缓存获取的值为：key,{},{}",key,returnUrlCache);
+                    if (StringUtils.isNotBlank(returnUrlCache)) {
+                        returnUrl1 = returnUrlCache + "param=" + result;
+                        logger.info("缓存获取的值为：{}", returnUrl1);
+                    } else {
+                        returnUrlCache = redisUtil.get("key=" + key);
+                        returnUrl1 = returnUrlCache + "param=" + result;
+                        logger.info("redis缓存获取的值为：{}", returnUrl1);
+                    }
+                }
                 logger.info("重定向到B端用户的URL:{}",returnUrl1);
                 response.sendRedirect(returnUrl1);
                 return null;
@@ -168,10 +205,20 @@ public class BusinessController {
             zmfResultModel.setOrgid(orgid);
             String result = DataHandlerUtil.decodeResult(zmfResultModel);
             logger.info("供应商给我的芝麻分数据重新加密给B端，result={}",result);
-            //String response = HttpUtils.sendGet(business.getReturnUrl(), result);
             String returnUrl=business.getReturnUrl();
-            logger.info("重定向到B端用户的URL:{}",returnUrl);
-            returnUrl=returnUrl+"?param="+result;
+            returnUrl=returnUrl+"param="+result;
+            if (StringUtils.isNotBlank(key)) {
+                String returnUrlCache = localCacheUtils.get("key="+key);
+                logger.info("缓存获取的值为：{}",returnUrlCache);
+                if (StringUtils.isNotBlank(returnUrlCache)) {
+                    returnUrl = returnUrlCache+"param="+result;
+                    logger.info("缓存获取的值为：{}",returnUrl);
+                }else {
+                    returnUrlCache = redisUtil.get("key=" + key);
+                    returnUrl = returnUrlCache + "param=" + result;
+                    logger.info("redis缓存获取的值为：key={},{}", key,returnUrl);
+                }
+            }
             logger.info("重定向到B端用户的URL:{}",returnUrl);
             response.sendRedirect(returnUrl);
             return null;
