@@ -39,8 +39,8 @@ public class RedisUtil {
         }
         return value;
     }
-    public Long setKeyExpire(String key,int days) {
-        int seconds=days*24*60*60;
+    public Long setKeyExpire(String key,int hour) {
+        int seconds=hour*60*60;
         Long expire = jedis.expire(key, seconds);
         logger.info("redis设置过期时间成功,key={},expire={}",key,expire);
         return expire;

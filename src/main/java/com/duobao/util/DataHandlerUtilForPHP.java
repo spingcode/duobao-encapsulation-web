@@ -18,6 +18,7 @@ public class DataHandlerUtilForPHP {
     private static String RC4_KEY="UCJYLVVL";
     private static String orgId="duobao";
     private static String returnUrl="http://118.24.127.29/business/php/zhiMaFenCallBackHL?";
+    private static String returnUrl_A="http://118.24.127.29/business/php/callUrl?";
     /*请求芝麻分的对B端用户进行解密*/
     public static ZmfDecodeModel decode(String param) throws UnsupportedEncodingException {
         ZmfRequestModel zmfRequestModel = JSON.parseObject(param, ZmfRequestModel.class);
@@ -32,7 +33,7 @@ public class DataHandlerUtilForPHP {
         return zmfDecodeModel;
     }
 
-    public static String encode(ZmfDecodeModel zmfDecodeModel) throws UnsupportedEncodingException {
+    public static String encode(ZmfDecodeModel zmfDecodeModel,String key) throws UnsupportedEncodingException {
         UserInfo userInfo = zmfDecodeModel.getUserInfo();
         JSONObject json = new JSONObject();
         json.put("orgid", orgId);
@@ -40,9 +41,39 @@ public class DataHandlerUtilForPHP {
         jsonSec.put("name", userInfo.getName());
         jsonSec.put("card", userInfo.getCard());
         jsonSec.put("phone", userInfo.getPhone());
-        jsonSec.put("returnUrl", returnUrl);
+        jsonSec.put("returnUrl", returnUrl+key+"&");
         logger.info("得到我将要发送给供应商未加密的数据：data={}",jsonSec.toJSONString());
         byte[] bytes = Ts.encry_RC4_byte(jsonSec.toJSONString(), RC4_KEY);
+        String sign = Base64Utils.encodeBase64(bytes);
+        json.put("data", sign);
+        return json.toJSONString();
+    }
+    public static String encodeAuthentication(ZmfDecodeModel zmfDecodeModel) throws UnsupportedEncodingException {
+        UserInfo userInfo = zmfDecodeModel.getUserInfo();
+        JSONObject json = new JSONObject();
+        json.put("orgid", "yongduobao1");
+        JSONObject jsonSec = new JSONObject();
+        jsonSec.put("name", userInfo.getName());
+        jsonSec.put("card", userInfo.getCard());
+        jsonSec.put("phone", userInfo.getPhone());
+        jsonSec.put("returnUrl",userInfo.getReturnUrl());
+        logger.info("得到我将要发送给供应商未加密的数据：data={}",jsonSec.toJSONString());
+        byte[] bytes = Ts.encry_RC4_byte(jsonSec.toJSONString(), "JMLGLLS6");
+        String sign = Base64Utils.encodeBase64(bytes);
+        json.put("data", sign);
+        return json.toJSONString();
+    }
+    public static String encodeAuthentication(ZmfDecodeModel zmfDecodeModel,String key) throws UnsupportedEncodingException {
+        UserInfo userInfo = zmfDecodeModel.getUserInfo();
+        JSONObject json = new JSONObject();
+        json.put("orgid", "yongduobao1");
+        JSONObject jsonSec = new JSONObject();
+        jsonSec.put("name", userInfo.getName());
+        jsonSec.put("card", userInfo.getCard());
+        jsonSec.put("phone", userInfo.getPhone());
+        jsonSec.put("returnUrl",returnUrl_A+key+"&");
+        logger.info("得到我将要发送给供应商未加密的数据：data={}",jsonSec.toJSONString());
+        byte[] bytes = Ts.encry_RC4_byte(jsonSec.toJSONString(), "JMLGLLS6");
         String sign = Base64Utils.encodeBase64(bytes);
         json.put("data", sign);
         return json.toJSONString();
@@ -57,6 +88,20 @@ public class DataHandlerUtilForPHP {
         jsonSec.put("phone", userInfo.getPhone());
         logger.info("encodeHygz,得到我将要发送给供应商未加密的数据：data={}",jsonSec.toJSONString());
         byte[] rc4 = Ts.encry_RC4_byte(jsonSec.toJSONString(), RC4_KEY);
+        String sign= Base64Utils.encodeBase64(rc4);
+        json.put("data", sign);
+        return json.toJSONString();
+    }
+    public static String encodeHygzNew(ZmfDecodeModel zmfDecodeModel) throws UnsupportedEncodingException {
+        UserInfo userInfo = zmfDecodeModel.getUserInfo();
+        JSONObject json = new JSONObject();
+        json.put("orgid", "yongduobao1");
+        JSONObject jsonSec = new JSONObject();
+        jsonSec.put("name", userInfo.getName());
+        jsonSec.put("card", userInfo.getCard());
+        jsonSec.put("phone", userInfo.getPhone());
+        logger.info("encodeHygz,得到我将要发送给供应商未加密的数据：data={}",jsonSec.toJSONString());
+        byte[] rc4 = Ts.encry_RC4_byte(jsonSec.toJSONString(), "JMLGLLS6");
         String sign= Base64Utils.encodeBase64(rc4);
         json.put("data", sign);
         return json.toJSONString();

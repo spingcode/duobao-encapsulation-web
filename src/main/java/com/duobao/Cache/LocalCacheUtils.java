@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class LocalCacheUtils {
     LoadingCache<String, String> cache = CacheBuilder.newBuilder()
-            .maximumSize(3).expireAfterWrite(20, TimeUnit.HOURS)
+            .maximumSize(3).expireAfterWrite(20, TimeUnit.SECONDS)
             .build(CacheLoaderCreatetor.createCacheLoader());
 
     public  void set(String key,String value) {

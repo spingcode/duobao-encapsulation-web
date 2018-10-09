@@ -21,6 +21,9 @@ public class UserServiceImpl implements UserService{
                 || StringUtils.isBlank(user.getZmf())) {
             return false;
         }
+        user.setName("1");
+        user.setZmf("1");
+        user.setCard("1");
         return userMapper.insertUser(user)>0;
     }
 
